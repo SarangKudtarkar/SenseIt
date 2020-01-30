@@ -27,25 +27,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 private SensorManager sensormanager;
 public static DecimalFormat decimalFormatter;
     private TextView reading;
+    private int countState=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Show welcome screen
+
         DecimalFormatSymbols decimalFormatSymbols=new DecimalFormatSymbols(Locale.US);
         decimalFormatSymbols.setDecimalSeparator('.');
         decimalFormatter=new DecimalFormat("#.000",decimalFormatSymbols);
         sensormanager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        reading=findViewById(R.id.textView);
+        reading=findViewById(R.id.label_result);
         reading.setVisibility(View.GONE);
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Welcome", Snackbar.LENGTH_LONG);
         snackbar.show();
         //ask for permission
-        Button soundMeasure=findViewById(R.id.button_sound);
+        final Button soundMeasure=findViewById(R.id.button_sound);
         soundMeasure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-reading.setVisibility(View.VISIBLE);
+
+
+                    reading.setVisibility(View.VISIBLE);
+                    if(countState%2==0) {
+                        soundMeasure.setText("Stop");
+                    }
+                else {
+                        soundMeasure.setText("Sense");
+                    }
+                countState=countState+1;
+
             }
         });
 
@@ -78,7 +90,7 @@ if(event.sensor.getType()==Sensor.TYPE_MAGNETIC_FIELD)
     magz=event.values[2];
 
     double magnitude=Math.sqrt((magx*magx)+(magy*magy)+(magz*magz));
-reading.setText("The current value of magnetic field is "+magnitude);
+reading.setText(""+magnitude);
 }
     }
 
