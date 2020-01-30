@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SenseIt</string>
+    <string name="sensorlabel">Detect field</string>
+    <string name="readinglabel">The current value of field is : </string>
 </resources>
