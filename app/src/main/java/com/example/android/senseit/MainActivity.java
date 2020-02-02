@@ -52,11 +52,11 @@ public static DecimalFormat decimalFormatter;
                     reading.setVisibility(View.VISIBLE);
                     if(countState%2==0) {
                         soundMeasure.setText("Stop");
-onPause();
+                        onResume();
                     }
                 else {
                         soundMeasure.setText("Sense");
-                       onResume();
+                       onPause();
                     }
                 countState=countState+1;
 
