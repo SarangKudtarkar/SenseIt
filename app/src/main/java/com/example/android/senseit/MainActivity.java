@@ -32,12 +32,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Show welcome screen
-        mediaPlayer = MediaPlayer.create(this, R.raw.sleep_away);
-         toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 80);
+        //mediaPlayer = MediaPlayer.create(this, R.raw.sleep_away);
+        toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 80);
         DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.US);
         decimalFormatSymbols.setDecimalSeparator('.');
         decimalFormatter = new DecimalFormat("#.000", decimalFormatSymbols);
         sensormanager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
         reading = findViewById(R.id.label_result);
         reading.setVisibility(View.GONE);
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Welcome", Snackbar.LENGTH_LONG);
@@ -71,15 +72,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
 
-     //   mediaPlayer.start();
+        //   mediaPlayer.start();
         sensormanager.registerListener(this, sensormanager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), sensormanager.SENSOR_DELAY_NORMAL);
+        //sensormanager.registerListener(this, sensormanager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), sensormanager.SENSOR_DELAY_GAME);
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-     //   mediaPlayer.pause();
+        //   mediaPlayer.pause();
         sensormanager.unregisterListener(this);
     }
 
@@ -91,10 +93,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             magy = event.values[1];
             magz = event.values[2];
 
-            double magnitude = Math.sqrt((magx * magx) + (magy * magy) + (magz * magz));
-            reading.setText("" + magnitude);
-
-            toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, (int) magnitude);
+            int magnitude = (int) Math.sqrt((magx * magx) + (magy * magy) + (magz * magz));
+            reading.setText("" + magnitude+ " uT");
+            if (magnitude > 100) {
+                toneGen1.startTone(ToneGenerator.TONE_CDMA_ANSWER, (int) magnitude);
+            } else if(magnitude >50) {
+                toneGen1.startTone(ToneGenerator.TONE_CDMA_DIAL_TONE_LITE, (int) magnitude);
+            }
+            else {
+                toneGen1.startTone(ToneGenerator.TONE_SUP_RINGTONE, (int) magnitude);
+            }
         }
     }
 
