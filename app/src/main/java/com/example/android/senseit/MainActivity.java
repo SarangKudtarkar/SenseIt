@@ -10,6 +10,7 @@ import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     MediaPlayer mediaPlayer;
     ToneGenerator toneGen1;
     private int countState = 0;
+    float prevx = 0,prevy = 0,prevz=0,nowx = 0,nowy = 0,nowz=0;
+    private int firstobservation=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
 
         //   mediaPlayer.start();
-        sensormanager.registerListener(this, sensormanager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), sensormanager.SENSOR_DELAY_NORMAL);
+        sensormanager.registerListener(this, sensormanager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), sensormanager.SENSOR_DELAY_NORMAL);
         //sensormanager.registerListener(this, sensormanager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), sensormanager.SENSOR_DELAY_GAME);
 
     }
@@ -87,23 +90,52 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            float magx, magy, magz;
-            magx = event.values[0];
-            magy = event.values[1];
-            magz = event.values[2];
-
-            int magnitude = (int) Math.sqrt((magx * magx) + (magy * magy) + (magz * magz));
-            reading.setText("" + magnitude+ " uT");
-            if (magnitude > 100) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float accx, accy, accz;
+            accx = event.values[0];
+            accy = event.values[1];
+            accz = event.values[2];
+            lowpass(event);
+            int magnitude = (int) Math.sqrt((accx * accx) + (accy * accy) + (accz * accz));
+            reading.setText("" + magnitude+ " m/s2");
+            if (magnitude > 10) {
                 toneGen1.startTone(ToneGenerator.TONE_CDMA_ANSWER, (int) magnitude);
-            } else if(magnitude >50) {
+            } else if(magnitude <8) {
                 toneGen1.startTone(ToneGenerator.TONE_CDMA_DIAL_TONE_LITE, (int) magnitude);
             }
             else {
-                toneGen1.startTone(ToneGenerator.TONE_SUP_RINGTONE, (int) magnitude);
+              //  toneGen1.startTone(ToneGenerator.TONE_SUP_RINGTONE, (int) magnitude);
             }
         }
+    }
+
+    private void lowpass(SensorEvent event) {
+
+        if(firstobservation==0)
+        {
+            prevx=event.values[0];
+            prevy=event.values[1];
+            prevz=event.values[2];
+            nowx=prevx;
+            nowy=prevy;
+            nowz=prevz;
+            firstobservation=1;
+        }
+        else
+        {
+            nowx=event.values[0];
+            nowy=event.values[1];
+            nowz=event.values[2];
+            float lowpassfactor= (float) 0.25; //no filtering occuring if alpha isequal to 0 or 1
+            nowx=nowx+lowpassfactor*(prevx-nowx);
+            nowy=nowy+lowpassfactor*(prevy-nowy);
+            nowz=nowz+lowpassfactor*(prevz-nowz);
+        }
+        Log.i("lowpass","values before and after passing through filter "+prevx+" "+nowx+" "+prevy+" "+nowy+" "+prevz+" "+nowz);
+        nowx=prevx;
+        nowy=prevy;
+        nowz=prevz;
+        
     }
 
     @Override
