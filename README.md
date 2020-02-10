@@ -1,5 +1,5 @@
 # SenseIt
-Studying android basics
+Senseit uses android sensor data for various functions after passing the values through low pass filter.
 <br><br>
 Activity states log 
 <br><br>
