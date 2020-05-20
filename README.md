@@ -3,4 +3,4 @@ Senseit uses android sensor data for various functions after passing the values 
 <br><br>
 Activity states log 
 <br><br>
-![](https://github.com/SarangKudtarkar/SenseIt/blob/master/images/activity_state.png)
+![](https://github.com/SarangKudtarkar/SenseIt/blob/master/images/senseit.png)
